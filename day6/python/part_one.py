@@ -10,6 +10,7 @@ for i in range(n - window_size):
     window = buffer[i : i + window_size]
     chars_processed += 1
     if len(set(window)) == window_size:
+        chars_processed += window_size - 1
         break
 
-print(chars_processed + window_size - 1)
+print(chars_processed)
