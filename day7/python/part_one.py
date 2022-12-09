@@ -19,9 +19,7 @@ def calculate_directory_size(dir):
     if len(entry["subdirs"]) == 0:
         return entry["size"]
 
-    subdir_sum = 0
-    for subdir in entry["subdirs"]:
-        subdir_sum += calculate_directory_size(subdir)
+    subdir_sum = sum([calculate_directory_size(subdir) for subdir in entry["subdirs"]])
 
     return subdir_sum + entry["size"]
 
@@ -46,8 +44,7 @@ for line in sys.stdin:
                 else:
                     current_directory = join_path(current_directory, cmd[1])
 
-    else:
-        # This is output from 'ls'
+    else: # This is output from 'ls'
         if directories.get(current_directory) == None:
             directories[current_directory] = {"subdirs": [], "size": 0}
 
@@ -59,10 +56,10 @@ for line in sys.stdin:
             size = line.split(" ")[0]
             directories[current_directory]["size"] += int(size)
 
-sum = 0
+total_size = 0
 for key in directories:
     size = calculate_directory_size(key)
     if size <= 100000:
-        sum += size
+        total_size += size
 
-print(sum)
+print(total_size)
