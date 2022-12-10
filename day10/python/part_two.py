@@ -3,37 +3,31 @@ import sys
 register = 1
 count = 0
 
-grid = [[[] for x in range(40)] for x in range(6)]
+HEIGHT = 6
+WIDTH = 40
+
+grid = [[[] for _ in range(WIDTH)] for _ in range(HEIGHT)]
 
 
 def draw_pixel():
-    row = (count - 1) // 40
-    column = count % 40
-    output = ""
+    column = count % WIDTH
     if abs(register - column) < 2:
-        output = "#"
+        pixel = "#"
     else:
-        output = " "
+        pixel = " "
 
-    grid[row][column] = output
+    if column == WIDTH - 1:
+        pixel += "\n"
+
+    print(pixel, end="")
 
 
 for line in sys.stdin:
-    line = line.rstrip()
-
-    if not line.startswith("noop"):
-        instruction, arg = line.split()
-        arg = int(arg)
-
+    draw_pixel()
+    if line.rstrip().startswith("addx"):
+        num = int(line.split()[1])
         count += 1
         draw_pixel()
-
-        register += arg
+        register += num
 
     count += 1
-    draw_pixel()
-
-for row in grid:
-    for column in row:
-        print(column, end="")
-    print()
