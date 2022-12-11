@@ -1,24 +1,12 @@
 import sys
 import re
 
-monkeys = dict()
-
 NUM_ROUNDS = 20
 
 
 def calculate_operation(op, old):
-    if "*" in op:
-        lhs, rhs = [x.strip() for x in op.split("*")]
-        if rhs == "old":
-            return old * old
-        else:
-            return old * int(rhs)
-    else:
-        lhs, rhs = [x.strip() for x in op.split("+")]
-        if rhs == "old":
-            return old + old
-        else:
-            return old + int(rhs)
+    rhs = op.split("=")[1].strip()
+    return eval(rhs)
 
 
 monkey_lines = [
@@ -26,14 +14,15 @@ monkey_lines = [
     for monkey in sys.stdin.read().split("\n\n")
 ]
 
-num_monkeys = len(monkey_lines)
+monkeys = [[] for _ in range(len(monkey_lines))]
 
-for x in monkey_lines:
-    num = int(re.findall(r"\d+", x[0])[0])
+mod = 1
+
+for num, x in enumerate(monkey_lines):
     monkeys[num] = dict()
+    monkeys[num]["inspected"] = 0
 
-    items = [int(x) for x in re.findall(r"\d+", x[1])]
-    monkeys[num]["items"] = items
+    monkeys[num]["items"] = [int(x) for x in re.findall(r"\d+", x[1])]
 
     operation = x[2].split(":")[1].strip()
     monkeys[num]["operation"] = operation
@@ -42,25 +31,18 @@ for x in monkey_lines:
     test_divisible = int(re.findall(r"\d+", test)[0])
     monkeys[num]["test_divisible"] = test_divisible
 
+    mod *= test_divisible
+
     monkeys[num]["next_true"] = int(re.findall(r"\d+", x[4])[0])
     monkeys[num]["next_false"] = int(re.findall(r"\d+", x[5])[0])
 
-    monkeys[num]["inspected"] = 0
 
-for monkey in monkeys.values():
-    print(monkey)
-
-for round in range(NUM_ROUNDS):
-    for x in range(num_monkeys):
-        print("\n\nMonkey", x)
-
-        monkey = monkeys[x]
-
+for _ in range(NUM_ROUNDS):
+    for monkey in monkeys:
         num_items = len(monkey["items"])
         for _ in range(num_items):
             worry = int(monkey["items"].pop(0))
-            new_worry = calculate_operation(monkey["operation"], worry)
-            new_worry = new_worry // 3
+            new_worry = calculate_operation(monkey["operation"], worry) // 3
 
             test_divisible = monkey["test_divisible"]
 
@@ -73,12 +55,7 @@ for round in range(NUM_ROUNDS):
 
             monkey["inspected"] += 1
 
-        for monkey in monkeys.values():
-            print(monkey["items"])
 
-inspected = []
-for monkey in monkeys.values():
-    inspected.append(monkey["inspected"])
-
+inspected = [monkey["inspected"] for monkey in monkeys]
 inspected.sort(reverse=True)
 print(inspected[0] * inspected[1])
