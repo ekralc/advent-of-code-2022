@@ -1,4 +1,3 @@
-from collections import defaultdict
 import sys
 
 grid = []
@@ -16,9 +15,6 @@ for line in sys.stdin:
     if "E" in row:
         x = row.index("E")
         goal_position = (x, len(grid) - 1)
-
-m = len(grid)
-n = len(grid[0])
 
 
 def climbable(a, b):
@@ -45,6 +41,10 @@ def adjacent(pos):
     """
     x, y = pos
     candidates = []
+
+    m = len(grid)
+    n = len(grid[0])
+
     if x > 0:
         candidates.append((x - 1, y))
     if x < n - 1:
@@ -54,36 +54,35 @@ def adjacent(pos):
     if y < m - 1:
         candidates.append((x, y + 1))
 
-    return list(filter(lambda x: climbable(pos, x), candidates))
+    return filter(lambda x: climbable(pos, x), candidates)
 
-
-explored = defaultdict(lambda: False)
 
 parent = dict()
 
 
 def bfs(root):
-    queue = []
-    explored[root] = True
+    explored = {root}
+    queue = [root]
 
-    queue.append(root)
     while len(queue) > 0:
         v = queue.pop(0)
+
         if v == goal_position:
             return v
 
         for w in adjacent(v):
-            if not explored[w]:
+            if w not in explored:
                 parent[w] = v
-                explored[w] = True
+                explored.add(w)
                 queue.append(w)
 
 
 end = bfs(start_position)
-next = parent[end]
-length = 1
-while next != start_position:
-    next = parent[next]
+
+backtrace = end
+length = 0
+while backtrace != start_position:
+    backtrace = parent[backtrace]
     length += 1
 
 print(length)

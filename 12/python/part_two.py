@@ -19,9 +19,6 @@ for line in sys.stdin:
         x = row.index("E")
         goal_position = (x, len(grid) - 1)
 
-m = len(grid)
-n = len(grid[0])
-
 
 def climbable(a, b):
     val_a = grid[a[1]][a[0]]
@@ -47,6 +44,10 @@ def adjacent(pos):
     """
     x, y = pos
     candidates = []
+
+    m = len(grid)
+    n = len(grid[0])
+
     if x > 0:
         candidates.append((x - 1, y))
     if x < n - 1:
@@ -61,13 +62,12 @@ def adjacent(pos):
 
 def bfs(root):
     parent = dict()
-    explored = set()
-    explored.add(root)
-    queue = []
+    explored = {root}
+    queue = [root]
 
-    queue.append(root)
     while len(queue) > 0:
         v = queue.pop(0)
+
         if v == goal_position:
             return v, parent
 
