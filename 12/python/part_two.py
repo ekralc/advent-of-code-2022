@@ -10,11 +10,6 @@ for line in sys.stdin:
     row = list(line)
     grid.append(row)
 
-    for i, char in enumerate(row):
-        if char == "a":
-            pos = (i, len(grid) - 1)
-            start_positions.append(pos)
-
     if "E" in row:
         x = row.index("E")
         goal_position = (x, len(grid) - 1)
@@ -34,7 +29,7 @@ def climbable(a, b):
     elif val_b == "E":
         val_b = "z"
 
-    difference = ord(val_b) - ord(val_a)
+    difference = ord(val_a) - ord(val_b)
     return difference <= 1
 
 
@@ -68,7 +63,8 @@ def bfs(root):
     while len(queue) > 0:
         v = queue.pop(0)
 
-        if v == goal_position:
+        x, y = v
+        if grid[y][x] == "a":
             return v, parent
 
         for w in adjacent(v):
@@ -80,7 +76,7 @@ def bfs(root):
     return None, parent
 
 
-def calculate_length(start, end):
+def calculate_length(start):
     end, parent = bfs(start)
     if end is None:
         return float("inf")
@@ -94,9 +90,4 @@ def calculate_length(start, end):
     return length
 
 
-lengths = []
-for start in start_positions:
-    length = calculate_length(start, goal_position)
-    lengths.append(length)
-
-print(min(lengths))
+print(calculate_length(goal_position))
