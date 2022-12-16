@@ -27,45 +27,33 @@ for k in adj.keys():
             if dist[i][j] > dist[i][k] + dist[k][j]:
                 dist[i][j] = dist[i][k] + dist[k][j]
 
-def show_dist():
-    for key, value in dist.items():
-        print(key, value)
-        print()
-
-# show_dist()
-
-
+# Filter out the caves with a rate greater than 0
 working = { key: value for key, value in adj.items() if flow[key] > 0}
 
 @functools.cache
-def dfs(start, time_limit, visited):
+def dfs(start_1, start_2, time_limit_1, time_limit_2, visited):
     visited = set(visited)
-
     highest = 0
     for cave in working:
-        time_left = time_limit
         if cave in visited: continue
 
         new_visited = visited.copy()
         new_visited.add(cave)
+        # Use frozenset which is hashable
+        new_visited = frozenset(new_visited)
 
-        time = dist[start][cave]
-        if time_left - (time + 1) < 0:
-            continue
+        time_1 = dist[start_1][cave]
+        if time_limit_1 - time_1 - 1 > 0:
+            time_left = time_limit_1 - time_1 - 1 
+            move = dfs(cave, start_2, time_left, time_limit_2, new_visited) + (time_left * flow[cave])
+            highest = max(move, highest)
 
-        # We open the valve at the destination, so add 1
-        time_left -= time + 1 
-        result = time_left * flow[cave]
-
-        rest = dfs(cave, time_left, frozenset(new_visited))
-        result += rest
-
-        highest = max(result, highest)
+        time_2 = dist[start_2][cave]
+        if time_limit_2 - time_2 - 1 > 0:
+            time_left = time_limit_2 - time_2 - 1
+            move = dfs(start_1, cave, time_limit_1, time_left, new_visited) + (time_left * flow[cave])
+            highest = max(move, highest)
 
     return highest
 
-print(dfs("AA", 30, frozenset()))
-
-sys.exit(0)
-adj = { key:[a for a in value if a not in open] for key, value in adj.items() if key not in open}
-flow = { key:value for key, value in flow.items() if key not in open}
+print(dfs("AA", "AA", 26, 26, frozenset()))
