@@ -80,7 +80,7 @@ def simulate_sand():
 
 def draw_screen():
     output = ""
-    for y in range((line + 1) // 2, line + 1):
+    for y in range(0, line + 1):
         for x in range(400, 600):
             output += grid[y][x]
         output += "\n"
