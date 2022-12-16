@@ -27,7 +27,8 @@ for k in adj.keys():
             if dist[i][j] > dist[i][k] + dist[k][j]:
                 dist[i][j] = dist[i][k] + dist[k][j]
 
-
+working_caves = { cave for cave in adj.keys() if flow[cave] > 0}
+print(working_caves)
 
 def get_actions(state):
     current_position, _, time_left, _ = state
@@ -103,6 +104,6 @@ def show_dist():
 
 
 
-
+# This is incredibly slow and will take multiple minutes to run on a full input.
 initial_state = "AA", frozenset(), 30, 0
 print(search(initial_state))
