@@ -1,23 +1,17 @@
 import sys
 
+NUM_ROCKS = 2022
 pattern = list(sys.stdin.readline())
-chamber = [['.' for _ in range(7)] for _ in range(1514285714288)]
+chamber = [['.' for _ in range(7)] for _ in range(NUM_ROCKS * 4)]
 
-def display_chamber():
-    for row in chamber[::-1]: # reversed
-        for char in row:
-            print(char, end="")
-        print()
 
 def get_direction():
     direction = pattern.pop(0)
     pattern.append(direction)
 
     match direction:
-        case '>':
-            return 1
-        case '<':
-            return -1
+        case '>': return 1
+        case '<': return -1
 
 def rock_shape(rock):
     return len(rock[0]), len(rock)
@@ -77,22 +71,18 @@ rocks = [
 
 rocks = [rock[::-1] for rock in rocks]
 
-NUM_ROCKS = 2022
-# NUM_ROCKS = 7
 
 rock_idx = 0
 max_y = 0
-for i in range(1000000000000):
+for i in range(NUM_ROCKS):
     rock = rocks[rock_idx]
     rock_idx = (rock_idx + 1) % len(rocks)
 
     w, h = rock_shape(rock)
-
     x, y = (2, max_y + 3)
 
     while True:
         direction = get_direction()
-
         new_pos = (x + direction, y) 
         if commit_rock(rock, new_pos, True):
             x, y = new_pos
@@ -105,6 +95,5 @@ for i in range(1000000000000):
     
     commit_rock(rock, (x, y), False)
     max_y = max(y + h, max_y)
-    print("done rock", i)
 
 print(max_y)
