@@ -1,15 +1,9 @@
 import sys
 import re
 import copy
-import functools
 
-blueprints = []
+blueprints = [tuple(map(int, re.findall(r"\d+", line.rstrip()))) for line in sys.stdin]
 
-for line in sys.stdin:
-    blueprint = tuple(map(int, re.findall(r"\d+", line.rstrip())))
-    blueprints.append(blueprint)
-    
-# BFS
 class State:
     ore = 0
     clay = 0
@@ -23,17 +17,14 @@ class State:
 
     time_left = 24
 
-@functools.cache
 def get_max_ore(bp):
-    _, ore_ore, clay_ore, obs_ore, obs_clay, geo_ore, geo_obs = bp
+    _, ore_ore, clay_ore, obs_ore, _, geo_ore, _ = bp
     return max(ore_ore, clay_ore, obs_ore, geo_ore)
 
-@functools.cache
 def get_actions(bp, current_state):
-    _, ore_ore, clay_ore, obs_ore, obs_clay, geo_ore, geo_obs = bp
+    if current_state.time_left <= 0: return {}
 
-    if current_state.time_left <= 0:
-        return {}
+    _, ore_ore, clay_ore, obs_ore, obs_clay, geo_ore, geo_obs = bp
 
     actions = set()
     max_ore = get_max_ore(bp)
@@ -59,7 +50,7 @@ def get_actions(bp, current_state):
         if (ore - current_state.ore_robots) <= clay_ore: # if couldn't afford it before
             actions.add("build clay")
 
-    return frozenset(actions)
+    return actions
 
 def update_state(bp, current_state, action):
     state = copy.deepcopy(current_state)
@@ -91,38 +82,23 @@ def update_state(bp, current_state, action):
 
     return state
 
-@functools.cache
 def optimal_geodes(bp, state):
-    max_geodes = 0
-    
     actions = get_actions(bp, state)
     if len(actions) == 0:
         return state.geodes
 
+    max_geodes = 0
     for action in actions:
         next_state = update_state(bp, state, action)
-        # print("ore:", state.ore, "clay:", state.clay, "obs:", state.obsidian, "geodes:", state.geodes)
-        assert next_state.time_left >= 0
         max_geodes = max(max_geodes, optimal_geodes(bp, next_state))
 
     return max_geodes
 
 initial_state = State()
-
-# print(optimal_geodes(blueprints[0], initial_state))
-
-# sys.exit(0)
-
 quality = 0
 for i, bp in enumerate(blueprints):
     id = i + 1
-    print("Evaluating bp ", id)
-    opt = optimal_geodes(bp, State())
-
-    q = opt * id
-    print(id, "is complete", opt, q)
-
-    quality += q
+    quality += optimal_geodes(bp, State()) * id
 
 print(quality)
 
