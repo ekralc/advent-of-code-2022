@@ -24,24 +24,40 @@ class State:
     time_left = 24
 
 @functools.cache
+def get_max_ore(bp):
+    _, ore_ore, clay_ore, obs_ore, obs_clay, geo_ore, geo_obs = bp
+    return max(ore_ore, clay_ore, obs_ore, geo_ore)
+
+@functools.cache
 def get_actions(bp, current_state):
     _, ore_ore, clay_ore, obs_ore, obs_clay, geo_ore, geo_obs = bp
 
     if current_state.time_left <= 0:
         return {}
 
-    actions = {"none"}
-    if current_state.ore >= ore_ore and (current_state.ore - current_state.ore_robots) < ore_ore:
-        actions.add("build ore")
+    actions = set()
+    max_ore = get_max_ore(bp)
+    max_clay = obs_clay
+    max_obs = geo_obs
 
-    if current_state.ore >= clay_ore and (current_state.ore - current_state.ore_robots) < clay_ore:
-        actions.add("build clay")
+    ore = current_state.ore
+    clay = current_state.clay
+    obsidian = current_state.obsidian
 
-    if current_state.ore >= obs_ore and current_state.clay >= obs_clay:
-        actions.add("build obs")
+    actions.add("none")
+    if ore >= geo_ore and obsidian >= geo_obs:
+        return {"build geo"}
 
-    if current_state.ore >= geo_ore and current_state.obsidian >= geo_obs:
-        actions.add("build geo")
+    if ore >= obs_ore and clay >= obs_clay and current_state.obsidian_robots < max_obs:
+        return {"build obs"}
+
+    if ore >= ore_ore and current_state.ore_robots < max_ore:
+        if (ore - current_state.ore_robots) <= ore_ore: # if couldn't afford it before
+            actions.add("build ore")
+
+    if ore >= clay_ore and current_state.clay_robots < max_clay:
+        if (ore - current_state.ore_robots) <= clay_ore: # if couldn't afford it before
+            actions.add("build clay")
 
     return frozenset(actions)
 
@@ -78,17 +94,35 @@ def update_state(bp, current_state, action):
 @functools.cache
 def optimal_geodes(bp, state):
     max_geodes = 0
-
+    
     actions = get_actions(bp, state)
     if len(actions) == 0:
         return state.geodes
 
     for action in actions:
         next_state = update_state(bp, state, action)
+        # print("ore:", state.ore, "clay:", state.clay, "obs:", state.obsidian, "geodes:", state.geodes)
         assert next_state.time_left >= 0
         max_geodes = max(max_geodes, optimal_geodes(bp, next_state))
 
     return max_geodes
 
 initial_state = State()
-print(optimal_geodes(blueprints[1], initial_state))
+
+# print(optimal_geodes(blueprints[0], initial_state))
+
+# sys.exit(0)
+
+quality = 0
+for i, bp in enumerate(blueprints):
+    id = i + 1
+    print("Evaluating bp ", id)
+    opt = optimal_geodes(bp, State())
+
+    q = opt * id
+    print(id, "is complete", opt, q)
+
+    quality += q
+
+print(quality)
+
