@@ -4,10 +4,11 @@ numbers = [int(line.rstrip()) for line in sys.stdin]
 
 n = len(numbers)
 
+# Store the number with its original index for identification
 pairs = [(i, num) for i, num in enumerate(numbers)]
-queue = pairs[:]
 
-for _ in range(n):
+queue = pairs[:]
+while queue:
     item = queue.pop(0)
     i, num = item 
 
@@ -24,7 +25,6 @@ for _ in range(n):
         pairs.insert(new_idx, item)
 
 numbers = [num for _, num in pairs]
-print(numbers)
 
 grove = [1000, 2000, 3000]
 sum = 0

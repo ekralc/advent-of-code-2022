@@ -5,12 +5,13 @@ numbers = [int(line.rstrip()) * DECRYPTION_KEY for line in sys.stdin]
 
 n = len(numbers)
 
+# Store the number with its original index for identification
 pairs = [(i, num) for i, num in enumerate(numbers)]
 queue = pairs[:]
 
 for _ in range(10):
     q = queue[:]
-    for _ in range(n):
+    while q:
         item = q.pop(0)
         i, num = item 
 
