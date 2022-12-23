@@ -10,9 +10,6 @@ for y, line in enumerate(sys.stdin):
 
 directions = ["N", "S", "W", "E"]
 
-round_number = 0
-rounds = dict()
-
 def print_grid():
     size = 10
     for y in range(size):
@@ -62,8 +59,7 @@ def get_cells_around(elf_pos):
 
 def positions_are_clear(positions):
     for pos in positions:
-        x, y = pos
-        if grid[x,y] == "#": return False
+        if grid[pos] == "#": return False
 
     return True
 
@@ -88,11 +84,8 @@ def round():
     for elf, proposition in propositions.items():
         values = list(propositions.values())
         if values.count(proposition) == 1: # unique
-            x, y = elf
-            grid[x,y] = "."
-            
-            x, y = proposition
-            grid[x,y] = "#"
+            grid[elf] = "."
+            grid[proposition] = "#"
             count += 1
 
     # rotate directions
