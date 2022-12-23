@@ -1,6 +1,7 @@
 import sys
 import re
 from scipy.optimize import fsolve
+import math
 
 monkeys = dict()
 
@@ -36,6 +37,24 @@ def evaluate(key, humn):
                 return evaluate(a, humn) * evaluate(b, humn)
             case '/':
                 return evaluate(a, humn) / evaluate(b, humn)
+
+l = -1e15
+r = 1e15
+
+while l <= r:
+    m = math.floor((l + r) / 2)
+
+    if evaluate("root", m) <= 0:
+        l = m + 1
+    elif evaluate("root", m) >= 0:
+        r = m - 1
+    else:
+        print("found")
+        break
+
+print(l, r, m)
+
+sys.exit(0)
 
 a, b = fsolve(lambda x: evaluate("root", x), [-1e15, 1e15])
 
