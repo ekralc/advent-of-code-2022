@@ -55,15 +55,13 @@ def get_cell_in_direction(elf_pos, direction):
 
 def get_cells_around(elf_pos):
     x, y = elf_pos
-
     adj = { (x-1,y-1), (x, y-1), (x+1, y-1), (x-1,y), (x+1,y), (x-1,y+1), (x, y+1), (x+1,y+1)}
 
     return adj
 
 def positions_are_clear(positions):
     for pos in positions:
-        x, y = pos
-        if grid[x,y] == "#": return False
+        if grid[pos] == "#": return False
 
     return True
 
@@ -87,11 +85,8 @@ def round():
     for elf, proposition in propositions.items():
         values = list(propositions.values())
         if values.count(proposition) == 1: # unique
-            x, y = elf
-            grid[x,y] = "."
-            
-            x, y = proposition
-            grid[x,y] = "#"
+            grid[elf] = "."
+            grid[proposition] = "#"
 
     # rotate directions
     directions.append(directions.pop(0))
@@ -108,13 +103,10 @@ max_x = max(elf[0] for elf in elves)
 min_y = min(elf[1] for elf in elves)
 max_y = max(elf[1] for elf in elves)
 
-print(min_x, max_x, min_y, max_y)
-
 count = 0
 for y in range(min_y, max_y + 1):
     for x in range(min_x, max_x + 1):
         if grid[x,y] == ".":
             count += 1
 
-# Part 1
 print(count)
