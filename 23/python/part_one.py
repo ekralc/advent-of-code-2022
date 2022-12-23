@@ -1,30 +1,32 @@
+from collections import defaultdict
 import sys
 
-grid = [list(line.rstrip()) for line in sys.stdin]
+grid = defaultdict(lambda: ".")
+
+for y, line in enumerate(sys.stdin):
+    for x, char in enumerate(line.rstrip()):
+        grid[x,y] = char
+
 
 directions = ["N", "S", "W", "E"]
 
-m = len(grid)
-n = len(grid[1])
+round_number = 0
+rounds = dict()
 
 def print_grid():
-    for y in range(m):
-        for x in range(n):
-            print(grid[y][x], end="")
+    size = 10
+    for y in range(size):
+        for x in range(size):
+            print(grid[x,y], end = "")
         print()
 
 def get_elves():
     elves = set()
-    for y in range(m):
-        for x in range(n):
-            if grid[y][x] == "#":
-                elves.add((x, y))
+    for pos, value in grid.items():
+        if value == "#":
+            elves.add(pos)
 
     return elves
-
-def within_bounds(pos):
-    x, y = pos
-    return x >= 0 and y >=0 and x < n and y < m
 
 def get_adjacent_cells(elf_pos, direction):
     x, y = elf_pos
@@ -41,7 +43,7 @@ def get_adjacent_cells(elf_pos, direction):
         case "E":
             adj = { (x + 1, y - 1), (x + 1, y), (x + 1, y + 1)}
 
-    return list(filter(within_bounds, adj))
+    return adj
 
 def get_cell_in_direction(elf_pos, direction):
     x, y = elf_pos
@@ -56,15 +58,14 @@ def get_cells_around(elf_pos):
 
     adj = { (x-1,y-1), (x, y-1), (x+1, y-1), (x-1,y), (x+1,y), (x-1,y+1), (x, y+1), (x+1,y+1)}
 
-    return set(filter(within_bounds, adj))
+    return adj
 
 def positions_are_clear(positions):
     for pos in positions:
         x, y = pos
-        if grid[y][x] == "#": return False
+        if grid[x,y] == "#": return False
 
     return True
-
 
 def round():
     # first half
@@ -86,17 +87,34 @@ def round():
     for elf, proposition in propositions.items():
         values = list(propositions.values())
         if values.count(proposition) == 1: # unique
-            print("moving", elf, "to", proposition)
             x, y = elf
-            grid[y][x] = "."
+            grid[x,y] = "."
             
             x, y = proposition
-            grid[y][x] = "#"
+            grid[x,y] = "#"
 
     # rotate directions
     directions.append(directions.pop(0))
 
-print_grid()
-print()
-round()
-print_grid()
+
+for i in range(10):
+    round()
+
+elves = get_elves()
+
+min_x = min(elf[0] for elf in elves)
+max_x = max(elf[0] for elf in elves)
+
+min_y = min(elf[1] for elf in elves)
+max_y = max(elf[1] for elf in elves)
+
+print(min_x, max_x, min_y, max_y)
+
+count = 0
+for y in range(min_y, max_y + 1):
+    for x in range(min_x, max_x + 1):
+        if grid[x,y] == ".":
+            count += 1
+
+# Part 1
+print(count)
