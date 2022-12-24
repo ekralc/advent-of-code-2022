@@ -78,11 +78,11 @@ def get_actions(state):
         actions.add("none")
 
     x, y = pos
-    if x < n - 2 and y > 0:
+    if x < n - 2 and y > 0 and y < m - 1:
         if (x + 1, y) not in lookahead:
             actions.add("right")
 
-    if x > 1 and y > 0:
+    if x > 1 and y > 0 and y < m - 1:
         if (x - 1, y) not in lookahead:
             actions.add("left")
 
@@ -94,18 +94,6 @@ def get_actions(state):
         if (x, y - 1) not in lookahead:
             actions.add("up")
 
-    if "down" in actions and "up" in actions:
-        # actions.remove("up")
-        pass
-
-    if "right" in actions and "left" in actions:
-        # actions.remove("left")
-        pass
-
-    if ("down" in actions or "right" in actions) and "none" in actions:
-        # actions.remove("none")
-        pass
-    # todo optimise this
     return actions
 
 def get_new_state(state, action):
@@ -121,24 +109,18 @@ def get_new_state(state, action):
 
 GOAL = END
 
-maximum = 300
+maximum = 250
 visited = set()
 def dfs(state):
     pos, t = state
 
-    x, y = pos
-    if y == 0: assert x == 1
-
     if pos in get_position_set_at_time(t):
-        print("hmm")
         return float("inf")
 
     if t >= maximum:
-        print("exceed maximum")
         return float("inf")
 
     if pos == GOAL:
-        print("found goal!")
         return t
 
     min_t = float("inf")
@@ -148,11 +130,12 @@ def dfs(state):
         new_state = get_new_state(state, action)
         if new_state not in visited:
             visited.add(new_state)
-            # print("expanding", new_state)
             min_t = min(min_t, dfs(new_state))
 
     return min_t
 
+# Shamefully slow...
+# Part 1
 first_stage = dfs((START, 0))
 print(first_stage)
 GOAL = START
@@ -161,8 +144,7 @@ maximum = 600
 visited = set()
 second_stage = dfs((END, first_stage))
 
-maximum = 1000
-print(second_stage)
+maximum = 900
 GOAL = END
 visited = set()
 third_stage = dfs((START, second_stage))
